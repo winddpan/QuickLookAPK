@@ -7,6 +7,30 @@
 //
 
 #import "HZAndroidPackage.h"
+#import "NSString+Extension.h"
+
+@interface Node: NSObject
+@property (nonatomic) Node *parent;
+@property (nonatomic) NSString *name;
+@property (nonatomic) NSMutableArray<Node *> *subNodes;
+@end
+@implementation Node
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.subNodes = [NSMutableArray array];
+    }
+    return self;
+}
+
+- (void)visit:(void (^)(Node *))visit {
+    visit(self);
+    for (Node *n in self.subNodes) {
+        [n visit:visit];
+    }
+}
+@end
 
 NSDictionary *permissionsMap( )
 {
@@ -198,15 +222,19 @@ NSString *androidPackageHTMLPreview(HZAndroidPackage *package)
     [stringBuilder appendFormat:@"<h3>Package name: %@</h3>", package.name];
     [stringBuilder appendFormat:@"<h3>Version: %@ (%@)</h3><h3>", package.versionName, package.versionCode];
     [stringBuilder appendFormat:@"SDK: %@", package.sdkVersion];
-    
     if(package.targetSdkVersion != nil)
     {
         [stringBuilder appendFormat:@" (target %@)", package.targetSdkVersion];
     }
+    [stringBuilder appendString:@"</h3>"];
+
+    if (package.METAINF != nil) {
+        [stringBuilder appendFormat:@"<h3>METAINF: %@</h3>", package.METAINF];
+    }
     
     if ([package.permissions count] != 0)
     {
-        [stringBuilder appendString:@"</h3><h3>Permissions:</h3><ul>"];
+        [stringBuilder appendString:@"<h3>Permissions:</h3><ul>"];
 
         NSArray *sortedPermissions = [package.permissions sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
 
@@ -223,9 +251,24 @@ NSString *androidPackageHTMLPreview(HZAndroidPackage *package)
         
             [stringBuilder appendString:@"</li><br>"];
         }
+        [stringBuilder appendString:@"</ul>"];
     }
+    
+    if ([package.metaDatas count] != 0)
+    {
+        [stringBuilder appendString:@"</h3><h3>MetaData:</h3>"];
+        [stringBuilder appendString:@"<ul>"];
 
-    [stringBuilder appendString:@"</ul></body></html>"];
+        for (NSString *metaData in package.metaDatas)
+        {
+            [stringBuilder appendFormat:@"<li>%@", metaData];
+            [stringBuilder appendString:@"</li><br>"];
+        }
+        [stringBuilder appendString:@"</ul>"];
+    }
+    
+    [stringBuilder appendString:@"</body></html>"];
+
     return stringBuilder;
 }
 
@@ -234,7 +277,9 @@ NSString *androidPackageHTMLPreview(HZAndroidPackage *package)
 + (instancetype)packageWithPath:(NSString *)path
 {
     HZAndroidPackage *apk = [[HZAndroidPackage alloc] initWithPath:path];
-    [apk load];
+    [apk loadBadging];
+    [apk loadMETAINF];
+    [apk loadMetaData];
 
     return apk;
 }
@@ -249,7 +294,7 @@ NSString *androidPackageHTMLPreview(HZAndroidPackage *package)
     return self;
 }
 
-- (void)load
+- (void)loadBadging
 {
     NSString *aaptPath = [[[NSBundle bundleWithIdentifier:@"com.hezicohen.qlapk"] resourcePath] stringByAppendingPathComponent:@"aapt"];
 
@@ -264,7 +309,7 @@ NSString *androidPackageHTMLPreview(HZAndroidPackage *package)
     NSData *apkData = [[readPipe fileHandleForReading] readDataToEndOfFile];
     NSString *apkString = [[NSString alloc] initWithData:apkData
                                                 encoding:NSUTF8StringEncoding];
-
+    
     NSError *error = nil;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"package: name='(.+)' versionCode='(.+)' versionName='(.+)' platformBuildVersionName='.*'"
                                                                            options:NSRegularExpressionCaseInsensitive
@@ -316,18 +361,137 @@ NSString *androidPackageHTMLPreview(HZAndroidPackage *package)
     self.iconPath = [apkString substringWithRange:range];
     self.iconData = dataFromZipPath(self.path, self.iconPath);
 
-    regex = [NSRegularExpression regularExpressionWithPattern:@"uses-permission: name='([^\\v\\h]+)'"
-                                                      options:0
-                                                        error:&error];
-    NSMutableArray *permissions = [NSMutableArray array];
-    [regex enumerateMatchesInString:apkString options:0 range:NSMakeRange(0, apkString.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
-    {
-        NSRange range = [result rangeAtIndex:1];
-        NSString *permission = [apkString substringWithRange:range];
-        [permissions addObject:permission];
-    }];
+//    regex = [NSRegularExpression regularExpressionWithPattern:@"meta-data: name='([^\\v\\h]+)'"
+//                                                      options:0
+//                                                        error:&error];
+//    NSMutableArray *permissions = [NSMutableArray array];
+//    [regex enumerateMatchesInString:apkString options:0 range:NSMakeRange(0, apkString.length) usingBlock:^(NSTextCheckingResult *result, NSMatchingFlags flags, BOOL *stop)
+//    {
+//        NSRange range = [result rangeAtIndex:1];
+//        NSString *permission = [apkString substringWithRange:range];
+//        [permissions addObject:permission];
+//    }];
+//
+//    self.permissions = permissions;
+}
 
-    self.permissions = permissions;
+- (NSString *)pureString:(NSString *)string {
+    NSString *new = [string regexMatch:@"=.*?\\(Raw"];
+    if (new.length > 6) {
+        new = [new substringWithRange:NSMakeRange(1, new.length - 6)];
+    } else {
+        new = [string regexMatch:@"=.*"];
+        new = [new substringWithRange:NSMakeRange(1, new.length - 1)];
+    }
+    // 去除首位引号
+    if (new.length >= 1 && [@"\"" isEqual:[new substringWithRange:NSMakeRange(0, 1)]] ) {
+        new = [new substringFromIndex:1];
+    }
+    if (new.length >= 1 && [@"\"" isEqual:[new substringWithRange:NSMakeRange(new.length - 1, 1)]] ) {
+        new = [new substringToIndex:new.length - 1];
+    }
+    return new;
+}
+
+- (void)loadMetaData {
+    Node *root = [self loadXmlTree];
+    
+    NSMutableArray *metaDatas = [NSMutableArray array];
+    [root visit:^(Node *node) {
+        if ([node.name containsString:@"E: meta-data"] && ![node.parent.name containsString:@"E: activity"]) {
+            NSString *name;
+            NSString *value;
+            for (Node *n in node.subNodes) {
+                if ([n.name containsString:@"android:name"]) {
+                    name = n.name;
+                } else if ([n.name containsString:@"android:value"]) {
+                    value = n.name;
+                }
+            }
+            if (name != nil && value != nil) {
+                name = [self pureString:name];
+                value = [self pureString:value];
+                if (name.length > 0 && value.length > 0) {
+                    [metaDatas addObject:[NSString stringWithFormat:@"%@ - <b><font style='color:#ff793f'>%@</font></b>", name, value]];
+                } else {
+                    NSLog(@"%@ - %@", name, value);
+                }
+            }
+        }
+    }];
+    self.metaDatas = metaDatas;
+}
+
+- (Node *)loadXmlTree {
+    NSString *aaptPath = [[[NSBundle bundleWithIdentifier:@"com.hezicohen.qlapk"] resourcePath] stringByAppendingPathComponent:@"aapt"];
+
+    NSTask *task = [[NSTask alloc] init];
+    [task setLaunchPath:[aaptPath stringByExpandingTildeInPath]];
+    [task setArguments:[NSArray arrayWithObjects:@"dump", @"xmltree", [self path], @"AndroidManifest.xml", nil]];
+
+    NSPipe *readPipe = [NSPipe pipe];
+    [task setStandardOutput:readPipe];
+    [task launch];
+
+    NSData *apkData = [[readPipe fileHandleForReading] readDataToEndOfFile];
+    NSString *apkString = [[NSString alloc] initWithData:apkData
+                                                encoding:NSUTF8StringEncoding];
+    
+    NSArray<NSString *> *lines = [apkString componentsSeparatedByString:@"\n"];
+
+    Node *root;
+    Node *parent;
+    NSInteger currSpacing = -1;
+    
+    for (NSString *line in lines) {
+        NSInteger spcaing = [line preSpcaing];
+        Node *node = [[Node alloc] init];
+        node.name = line;
+
+        if (root == nil) {
+            parent = node;
+            root = node;
+        } else {
+            if (spcaing == currSpacing) {
+            } else if (spcaing > currSpacing) {
+                parent = parent.subNodes.lastObject ?: parent;
+            } else if (spcaing < currSpacing) {
+                parent = parent.parent;
+            }
+            
+            node.parent = parent;
+            [parent.subNodes addObject:node];
+        }
+        currSpacing = spcaing;
+    }
+    return root;
+}
+
+- (void)loadMETAINF {
+    NSString *aaptPath = [[[NSBundle bundleWithIdentifier:@"com.hezicohen.qlapk"] resourcePath] stringByAppendingPathComponent:@"aapt"];
+
+    NSTask *task = [[NSTask alloc] init];
+    [task setLaunchPath:[aaptPath stringByExpandingTildeInPath]];
+    [task setArguments:[NSArray arrayWithObjects:@"l", [self path], nil]];
+
+    NSPipe *readPipe = [NSPipe pipe];
+    [task setStandardOutput:readPipe];
+    [task launch];
+
+    NSData *apkData = [[readPipe fileHandleForReading] readDataToEndOfFile];
+    NSString *apkString = [[NSString alloc] initWithData:apkData
+                                                encoding:NSUTF8StringEncoding];
+    
+    NSArray<NSString *> *lines = [apkString componentsSeparatedByString:@"\n"];
+    
+    for (NSString *line in lines) {
+        if ([line hasPrefix:@"META-INF/"] && ![line containsString:@"."]) {
+            NSString *METAINF = [line stringByReplacingOccurrencesOfString:@"META-INF/" withString:@""];
+            self.METAINF = [NSString stringWithFormat:@"<font style='color:#ff793f'>%@</font>", METAINF];
+            return;
+        }
+    }
 }
 
 @end
+

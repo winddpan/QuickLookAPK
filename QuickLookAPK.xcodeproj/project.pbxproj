@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		40F5888826E0AD6C009C4BD2 /* NSString+Extension.h in Headers */ = {isa = PBXBuildFile; fileRef = 40F5888626E0AD6C009C4BD2 /* NSString+Extension.h */; };
+		40F5888926E0AD6C009C4BD2 /* NSString+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 40F5888726E0AD6C009C4BD2 /* NSString+Extension.m */; };
 		E799642E188D34C000BFAA22 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E799642D188D34C000BFAA22 /* QuickLook.framework */; };
 		E7996430188D34C000BFAA22 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E799642F188D34C000BFAA22 /* ApplicationServices.framework */; };
 		E7996432188D34C000BFAA22 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E7996431188D34C000BFAA22 /* CoreServices.framework */; };
@@ -24,6 +26,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		40F5888626E0AD6C009C4BD2 /* NSString+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Extension.h"; sourceTree = "<group>"; };
+		40F5888726E0AD6C009C4BD2 /* NSString+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Extension.m"; sourceTree = "<group>"; };
 		E799642A188D34C000BFAA22 /* QuickLookAPK.qlgenerator */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuickLookAPK.qlgenerator; sourceTree = BUILT_PRODUCTS_DIR; };
 		E799642D188D34C000BFAA22 /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 		E799642F188D34C000BFAA22 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
@@ -102,6 +106,8 @@
 				E799643F188D34C000BFAA22 /* main.c */,
 				E7B4AD38188E7695009C713E /* HZAndroidPackage.h */,
 				E7B4AD39188E7695009C713E /* HZAndroidPackage.m */,
+				40F5888626E0AD6C009C4BD2 /* NSString+Extension.h */,
+				40F5888726E0AD6C009C4BD2 /* NSString+Extension.m */,
 				E7996436188D34C000BFAA22 /* Supporting Files */,
 			);
 			path = QuickLookAPK;
@@ -124,6 +130,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40F5888826E0AD6C009C4BD2 /* NSString+Extension.h in Headers */,
 				E7B4AD3A188E7695009C713E /* HZAndroidPackage.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,6 +147,7 @@
 				E7996426188D34C000BFAA22 /* Headers */,
 				E7996427188D34C000BFAA22 /* Resources */,
 				E7996428188D34C000BFAA22 /* Rez */,
+				40F5885926E07312009C4BD2 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -164,6 +172,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = E799641F188D34C000BFAA22;
@@ -199,11 +208,32 @@
 		};
 /* End PBXRezBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		40F5885926E07312009C4BD2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "rm -r ~/Library/QuickLook/QuickLookAPK.qlgenerator\ncp -r ~/Library/Developer/Xcode/DerivedData/Build/Products/Debug/QuickLookAPK.qlgenerator ~/Library/QuickLook/QuickLookAPK.qlgenerator\nqlmanage -r\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		E7996424188D34C000BFAA22 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40F5888926E0AD6C009C4BD2 /* NSString+Extension.m in Sources */,
 				E7B4AD3B188E7695009C713E /* HZAndroidPackage.m in Sources */,
 				E799643C188D34C000BFAA22 /* GenerateThumbnailForURL.m in Sources */,
 				E799643E188D34C000BFAA22 /* GeneratePreviewForURL.m in Sources */,

@@ -20,6 +20,8 @@
 @property(nonatomic) NSString *iconPath;
 @property(nonatomic) NSData *iconData;
 @property(nonatomic) NSArray *permissions;
+@property(nonatomic) NSArray *metaDatas;
+@property(nonatomic) NSString *METAINF;
 
 + (instancetype)packageWithPath:(NSString *)path;
 
