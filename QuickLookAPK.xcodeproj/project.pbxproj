@@ -230,7 +230,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm -r ~/Library/QuickLook/QuickLookAPK.qlgenerator\ncp -r ~/Library/Developer/Xcode/DerivedData/Build/Products/Debug/QuickLookAPK.qlgenerator ~/Library/QuickLook/QuickLookAPK.qlgenerator\nsleep 1s\nqlmanage -r cache\n";
+			shellScript = "rm -r ~/Library/QuickLook/QuickLookAPK.qlgenerator\ncp -r $BUILT_PRODUCTS_DIR/QuickLookAPK.qlgenerator ~/Library/QuickLook/QuickLookAPK.qlgenerator\nsleep 1s\nqlmanage -r\nqlmanage -r cache\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

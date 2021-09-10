@@ -17,6 +17,7 @@ void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview);
 OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options)
 {
     NSURL *fileURL = (__bridge NSURL *)url;
+    
     if (![[[fileURL pathExtension] lowercaseString] isEqualToString:@"apk"])
     {
         return noErr;

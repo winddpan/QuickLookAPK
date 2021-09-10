@@ -17,7 +17,7 @@ void CancelThumbnailGeneration(void *thisInterface, QLThumbnailRequestRef thumbn
 OSStatus GenerateThumbnailForURL(void *thisInterface, QLThumbnailRequestRef thumbnail, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options, CGSize maxSize)
 {
     NSURL *fileURL = (__bridge NSURL *)url;
-    if (![[fileURL pathExtension] isEqualToString:@"apk"])
+    if (![[[fileURL pathExtension] lowercaseString] isEqualToString:@"apk"])
     {
         return noErr;
     }
