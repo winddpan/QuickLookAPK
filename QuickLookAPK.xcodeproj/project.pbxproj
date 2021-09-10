@@ -166,6 +166,12 @@
 			attributes = {
 				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = "Hezi Cohen";
+				TargetAttributes = {
+					E7996429188D34C000BFAA22 = {
+						DevelopmentTeam = 98VNQ8FT5Y;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = E7996423188D34C000BFAA22 /* Build configuration list for PBXProject "QuickLookAPK" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -224,7 +230,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "rm -r ~/Library/QuickLook/QuickLookAPK.qlgenerator\ncp -r ~/Library/Developer/Xcode/DerivedData/Build/Products/Debug/QuickLookAPK.qlgenerator ~/Library/QuickLook/QuickLookAPK.qlgenerator\nqlmanage -r\n";
+			shellScript = "rm -r ~/Library/QuickLook/QuickLookAPK.qlgenerator\ncp -r ~/Library/Developer/Xcode/DerivedData/Build/Products/Debug/QuickLookAPK.qlgenerator ~/Library/QuickLook/QuickLookAPK.qlgenerator\nsleep 1s\nqlmanage -r cache\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -352,13 +358,17 @@
 		E7996445188D34C000BFAA22 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 98VNQ8FT5Y;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "QuickLookAPK/QuickLookAPK-Prefix.pch";
 				INFOPLIST_FILE = "QuickLookAPK/QuickLookAPK-Info.plist";
 				INSTALL_PATH = /Library/QuickLook;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hezicohen.qlapk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				WRAPPER_EXTENSION = qlgenerator;
 			};
 			name = Debug;
@@ -366,7 +376,10 @@
 		E7996446188D34C000BFAA22 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 98VNQ8FT5Y;
 				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "QuickLookAPK/QuickLookAPK-Prefix.pch";
@@ -374,6 +387,7 @@
 				INSTALL_PATH = /Library/QuickLook;
 				PRODUCT_BUNDLE_IDENTIFIER = com.hezicohen.qlapk;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				WRAPPER_EXTENSION = qlgenerator;
 			};
 			name = Release;

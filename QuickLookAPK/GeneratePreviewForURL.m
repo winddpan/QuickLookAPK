@@ -17,13 +17,12 @@ void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview);
 OSStatus GeneratePreviewForURL(void *thisInterface, QLPreviewRequestRef preview, CFURLRef url, CFStringRef contentTypeUTI, CFDictionaryRef options)
 {
     NSURL *fileURL = (__bridge NSURL *)url;
-    if (![[fileURL pathExtension] isEqualToString:@"apk"])
+    if (![[[fileURL pathExtension] lowercaseString] isEqualToString:@"apk"])
     {
         return noErr;
     }
 
     HZAndroidPackage *apk = [HZAndroidPackage packageWithPath:[fileURL path]];
-
     CFDataRef previewData = (__bridge CFDataRef)[androidPackageHTMLPreview(apk) dataUsingEncoding : NSUTF8StringEncoding];
 
     if (previewData)
@@ -39,3 +38,5 @@ void CancelPreviewGeneration(void *thisInterface, QLPreviewRequestRef preview)
 {
     // Implement only if supported
 }
+
+
